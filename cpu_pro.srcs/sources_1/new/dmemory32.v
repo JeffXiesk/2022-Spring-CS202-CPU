@@ -44,7 +44,7 @@ module dmemory32(ram_clk_i,ram_wen_i,ram_adr_i,ram_dat_i,ram_dat_o, upg_rst_i, u
     RAM ram (
         .clka (kickOff ? ram_clk : upg_clk_i),
         .wea (kickOff ? ram_wen_i : upg_wen_i),
-        .addra (kickOff ? ram_adr_i : upg_adr_i),
+        .addra (kickOff ? ram_adr_i[15:2] : upg_adr_i),
         .dina (kickOff ? ram_dat_i : upg_dat_i),
         .douta (ram_dat_o)
     );

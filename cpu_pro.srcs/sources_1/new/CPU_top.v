@@ -75,6 +75,12 @@ wire Zero,MemRead;
 wire ioRead,ioWrite;
 wire SwitchCtrl,LEDCtrl;
 
+wire[21:0] ALU_resultHigh;
+assign ALU_resultHigh = ALU_Result[31:10];
+
+wire upg_f1,upg_f2;
+assign upg_f1 = upg_wen_o & upg_adr_o[14];
+assign upg_f2 = upg_wen_o & (!upg_adr_o[14]);
 
 cpuclk cpuclk_1(
     .clk_in1(fpga_clk),
@@ -150,7 +156,7 @@ control32 control32_1(
     .I_format           (I_format),
     .Sftmd              (Sftmd),
     .ALUOp              (ALUOp),
-    .MemRead            (memread),
+    .MemRead            (MemRead),
     .Alu_resultHigh     (ALU_resultHigh), 
     .IORead             (ioRead), 
     .IOWrite            (ioWrite) 
@@ -171,16 +177,12 @@ decode32 decode32_1(
     .opcplus4           (opcplus4)
 );
 
-wire upg_f1,upg_f2;
-assign upg_f1 = upg_wen_o & upg_adr_o[14];
-assign upg_f2 = upg_wen_o & (!upg_adr_o[14]);
 dmemory32 dmemory32_1(
     .ram_clk_i          (clk),
     .ram_wen_i          (MemWrite),
     .ram_adr_i          (address),
-    // .ram_dat_i          (mread_data),
-    .ram_dat_i          (Read_data_2),
-    .ram_dat_o          (write_data),
+    .ram_dat_i          (write_data),
+    .ram_dat_o          (mread_data),
 
     .upg_rst_i          (upg_rst),
     .upg_clk_i          (upg_clk_o),
@@ -205,4 +207,25 @@ MemOrIO MemOrIO_1(
     .SwitchCtrl         (SwitchCtrl),
     .LEDCtrl            (LEDCtrl)
 );
+
+switch switch_1(
+    .switclk            (clk),
+    .switrst            (fpga_rst),
+    .switchread         (ioRead),
+    .switchaddr         (address[1:0]),
+    .switch_i           (switch2N4),
+    .switchrdata        (ioread_data),
+    .switchcs           (SwitchCtrl)
+);
+
+led led_1(
+.led_clk            (clk),
+.ledrst             (fpga_rst),
+.ledwrite           (ioWrite),
+.ledcs              (LEDCtrl),
+.ledaddr            (address[1:0]),
+.ledwdata           (write_data[15:0]),
+.ledout             (led2N4)
+);
+
 endmodule

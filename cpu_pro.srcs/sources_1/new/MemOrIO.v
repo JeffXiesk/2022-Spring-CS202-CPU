@@ -29,7 +29,7 @@ input[31:0] addr_in; // from alu_result in ALU
 output[31:0] addr_out; // address to Data-Memory
 input[31:0] m_rdata; // data read from Data-Memory
 input[15:0] io_rdata; // data read from IO,16 bits
-output[31:0] r_wdata; // data to Decoder(register file)
+output reg[31:0] r_wdata; // data to Decoder(register file)
 input[31:0] r_rdata; // data read from Decoder(register file)
 output reg[31:0] write_data; // data to memory or I/O��m_wdata, io_wdata��output LEDCtrl; // LED Chip Select
 output SwitchCtrl; // Switch Chip Select
@@ -39,13 +39,21 @@ assign addr_out = addr_in;
 // The data wirte to register file may be from memory or io. 
 // While the data is from io, it should be the lower 16bit of r_wdata. 
 // assign r_wdata = ioRead ? {16'b0, io_rdata} : m_rdata;
-assign r_wdata = (mRead == 1'b1) ? m_rdata : {16'h0000, io_rdata};
+// assign r_wdata = (mRead == 1'b1) ? m_rdata : {16'h0000, io_rdata};
+
+always @* begin
+if((mRead==1)||(ioRead==1))
+    //wirte_data could go to either memory or IO. where is it from?
+    r_wdata = ioRead?{16'b0,io_rdata}:m_rdata;
+else
+    r_wdata = 32'h0000ffff;
+end
 
 // Chip select signal of Led and Switch are all active high;
-assign LEDCtrl = ioWrite;
-assign SwitchCtrl = ioRead;
-// assign LEDCtrl = 1'b1; 
-// assign SwitchCtrl = 1'b1;
+// assign LEDCtrl = ioWrite;
+// assign SwitchCtrl = ioRead;
+assign LEDCtrl = 1'b1; 
+assign SwitchCtrl = 1'b1;
 
 always @* begin
     if((mWrite==1)||(ioWrite==1))
