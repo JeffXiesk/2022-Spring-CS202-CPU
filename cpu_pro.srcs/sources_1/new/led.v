@@ -1,48 +1,36 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 2022/05/28 00:43:32
-// Design Name: 
-// Module Name: led
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
-
-module led(led_clk, ledrst, ledwrite, ledcs, ledaddr,ledwdata, ledout);
-    input led_clk;    		    // Ê±ÖÓĞÅºÅ
-    input ledrst; 		        // ¸´Î»ĞÅºÅ
-    input ledwrite;		       	// Ğ´ĞÅºÅ
-    input ledcs;		      	// ´ÓmemorioÀ´µÄLEDÆ¬Ñ¡ĞÅºÅ   !!!!!!!!!!!!!!!!!
-    input[1:0] ledaddr;	        //  µ½LEDÄ£¿éµÄµØÖ·µÍ¶Ë  !!!!!!!!!!!!!!!!!!!!
-    input[15:0] ledwdata;	  	//  Ğ´µ½LEDÄ£¿éµÄÊı¾İ£¬×¢ÒâÊı¾İÏßÖ»ÓĞ16¸ù
-    output reg [23:0] ledout;		//  Ïò°å×ÓÉÏÊä³öµÄ24Î»LEDĞÅºÅ
+module LED(led_clk,
+            ledrst,
+            ledwrite,
+            ledcs,
+            ledaddr,
+            ledwdata,
+            ledout);
+    input led_clk;    		    // æ—¶é’Ÿä¿¡å·
+    input ledrst; 		        // å¤ä½ä¿¡å·
+    input ledwrite;		       	// å†™ä¿¡å·
+    input ledcs;		      	// ä»memorioæ¥çš„LEDç‰‡é€‰ä¿¡å·   !!!!!!!!!!!!!!!!!
+    input[1:0] ledaddr;	        //  åˆ°LEDæ¨¡å—çš„åœ°å€ä½ç«¯  !!!!!!!!!!!!!!!!!!!!
+    input [15:0] ledwdata;	  	//  å†™åˆ°LEDæ¨¡å—çš„æ•°æ®
+    output[23:0] ledout;		//  å‘æ¿å­ä¸Šè¾“å‡ºçš„24ä½LEDä¿¡å·
+    
+    reg [23:0] ledout;
+    
     always@(posedge led_clk or posedge ledrst) begin
-        if(ledrst) begin
+        if (ledrst) begin
             ledout <= 24'h000000;
         end
-		else if(ledcs && ledwrite) begin
-			if(ledaddr == 2'b00)
-				ledout[23:0] <= { ledout[23:16], ledwdata[15:0] };
-			else if(ledaddr == 2'b10 )
-				ledout[23:0] <= { ledwdata[7:0], ledout[15:0] };
-			else
-				ledout <= ledout;
+        else if (ledcs && ledwrite) begin
+            if (ledaddr == 2'b00)
+                ledout[23:0] <= { ledout[23:16], ledwdata[15:0] };
+            else if (ledaddr == 2'b10)
+                ledout[23:0] <= { ledwdata[7:0], ledout[15:0] };
+            else
+                ledout <= ledout;
         end
-		else begin
+        else begin
             ledout <= ledout;
         end
     end
 endmodule
-
